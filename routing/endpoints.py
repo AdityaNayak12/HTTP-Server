@@ -1,40 +1,34 @@
-from routing.router import route
-from http.response import HTTPResponse
-from storage.memory import database, add_record
 import json
-
-@route("GET","/")
-
-def home(request):
-    return HTTPResponse(200,"Welcome to HTTP Server")
+from routing.router import route
+from http_core.response import HTTPResponse
+from storage.memory import database, add_record
 
 
-@route("GET","/echo")
+@route("GET", "/")
+def home(req):
+    return HTTPResponse(200, "Welcome to the HTTP server!")
 
-def echo(request):
-    message = request.qurey.get("message",[""])[0]
-    return HTTPResponse(200,message)
 
-@route("POST","/data")
+@route("GET", "/echo")
+def echo(req):
+    message = req.query.get("message", [""])[0]
+    return HTTPResponse(200, message)
 
-def create_data(request):
-    content_type = request.header.get("content-type","")
-    if "application/json" not in content_type:
-        return HTTPResponse(400,"Expected JSON")
-    
+
+@route("POST", "/data")
+def create(req):
+    if "application/json" not in req.headers.get("content-type", ""):
+        return HTTPResponse(400, "Expected application/json")
+
     try:
-        body_json = json.loads(request.body)
+        payload = json.loads(req.body)
     except:
-        return HTTPResponse(400,"Invalid JSON")
-    
-    record = add_record(body_json)
+        return HTTPResponse(400, "Invalid JSON")
 
-    response_body = json.dumps({"success":True,"id":record["id"]})
-    return HTTPResponse(201,response_body,content_type = "application/json")
-
-@route("GET","/data")
-
-def list_data(request):
-    return HTTPResponse(200, json.dumps(database),"application/json")
+    record = add_record(payload)
+    return HTTPResponse(201, json.dumps(record), "application/json")
 
 
+@route("GET", "/data")
+def get_all(req):
+    return HTTPResponse(200, json.dumps(database), "application/json")

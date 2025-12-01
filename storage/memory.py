@@ -1,15 +1,13 @@
 database = []
-next_id = 1
+_next_id = 1
 
-def add_record(data:dict) -> dict:
 
-    global next_id
+def add_record(data):
+    global _next_id
 
     record = data.copy()
-    record["id"] = next_id
-    next_id+=1
-
+    record["id"] = _next_id
+    _next_id += 1
     database.append(record)
+
     return record
-
-
